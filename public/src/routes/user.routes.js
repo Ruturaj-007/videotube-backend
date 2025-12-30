@@ -5,6 +5,10 @@ import {upload} from "../middlewares/multer.middleware.js";
 const router = Router()
 
 router.route("/register").post(
+    (req, res, next) => {
+        console.log("Before multer - Files:", req.files);
+        next();
+    },
     upload.fields([
         {
             name: "avatar",
@@ -15,6 +19,10 @@ router.route("/register").post(
             maxCount: 1
         }
     ]),
+    (req, res, next) => {
+        console.log("After multer - Files:", req.files);
+        next();
+    },
     registerUser
 )
 

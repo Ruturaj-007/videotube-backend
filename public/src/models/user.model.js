@@ -1,63 +1,75 @@
-// 7:10 cloudinary
-
-import mongoose , {Schema}  from 'mongoose';
-import bcrypt from "bcryptjs";      // or "bcrypt"
+import mongoose, { Schema } from 'mongoose';
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const userSchema = new Schema({
-    username:{
-        type: String,
-        required: true,
-        index:true,         // sometimes expensive but better to add for searching
-        lowercase:true,
-        unique:true,
-        trim: true
-    },
-    email :{
-        type: String,
-        required: true,
-        lowercase:true,
-        unique:true,
-        trim: true
-    },
-    fullName :{
-        type: String,
-        required: true,
-        index: true,
-        trim: true
-    },
-    avatar :{
-        type: String,   // cloudinary service
-        required: true,
-    },
-    coverImage : {
-        type: String,   // cloudinary  service
-    },
-    watchHistory: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Video"
+const userSchema = new Schema(
+    {
+        username: {
+            type: String,
+            required: true,
+            index: true,
+            lowercase: true,
+            unique: true,
+            trim: true
+        },
+        email: {
+            type: String,
+            required: true,
+            lowercase: true,
+            unique: true,
+            trim: true
+        },
+        fullName: {
+            type: String,
+            required: true,
+            index: true,
+            trim: true
+        },
+        avatar: {
+            type: String,
+            required: true,
+        },
+        coverImage: {
+            type: String,
+        },
+        watchHistory: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Video"
+            }
+        ],
+        password: {
+            type: String,
+            required: [true, 'Password is required'],
+        },
+        refreshToken: {
+            type: String,
         }
-    ],
-    password: {
-        type: String,
-        required: [true, 'Password is required'],
     },
-    refreshToken: {
-        type: String,
+    {
+        timestamps: true
     }
-}, {timestamps: true});
+);
 
-// don't write arrow function directly it doesn't have context
-userSchema.pre("save", async function (next) {
-    // sending password field for the first time
-    if (!this.isModified("password")) return next();
-
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
+userSchema.pre("save", function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
+    
+    bcrypt.hash(this.password, 10, (err, hash) => {
+        if (err) {
+            return next(err);
+        }
+        this.password = hash;
+        next();
+    });
 });
 
-userSchema.methods.generateAccessToken = function() {
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -69,11 +81,11 @@ userSchema.methods.generateAccessToken = function() {
         {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
-    )
-}
+    );
+};
 
-userSchema.methods.generateRefreshToken = function() {
-    jwt.sign(
+userSchema.methods.generateRefreshToken = function () {
+    return jwt.sign(
         {
             _id: this._id,
         },
@@ -81,11 +93,7 @@ userSchema.methods.generateRefreshToken = function() {
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
-    )
-}
+    );
+};
 
-userSchema.methods.isPasswordCorrect = async function(password) {
-    return await bcrypt.compare(password, this.password)
-}
-
-export const User = mongoose.model("User", userSchema)
+export const User = mongoose.model("User", userSchema);
