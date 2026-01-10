@@ -33,6 +33,6 @@ router.route("/register").post(
 
 // Secued routes 
 router.route("/login").post(loginUser);   
-router.route("/logout").post(logoutUser)
+router.route("/logout").post(verifyJWT, logoutUser)
 
 export default router
