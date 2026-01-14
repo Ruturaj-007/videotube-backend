@@ -283,7 +283,7 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 
 const updateUserAvatar = asyncHandler(async(req, res)=> {
 
-    // * ALGORITHM
+    // * ALGO
     // * 1. Read avatar from Multer (req.file)
     // * 2. Upload to Cloudinary
     // * 3. Update avatar URL in MongoDB
