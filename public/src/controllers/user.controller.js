@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
@@ -26,15 +27,16 @@ const generateAccessAndRefreshTokens =  async(userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
 
-    // get user details from frontend 
-    // validation - not empty 
-    // check if user already exists: username, email
-    // check for images,check for avatar 
-    // upload them to cloudinary, avatar 
-    // create user object - create entry in db 
-    // remove password nd refresh token fiels from response 
-    // check for user creation 
-    // return res 
+    // * REGISTER USER
+    // * 1. get user details from frontend 
+    // * 2. validation - not empty 
+    // * 3. check if user already exists: username, email
+    // * 4. check for images,check for avatar 
+    // * 5. upload them to cloudinary, avatar 
+    // * 6. create user object - create entry in db 
+    // * 7. remove password nd refresh token fiels from response 
+    // * 8. check for user creation 
+    // * 9. return res 
 
     const {fullName, email, username, password} = req.body
     console.log("email: ", email);
@@ -101,15 +103,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
 })
 
-// lOGIN USER
-
 const loginUser = asyncHandler(async(req, res)=>{
-    // req body -> data 
-    // username and email 
-    // find the user 
-    // password check 
-    // access and refresh token
-    // send cookie 
+    // * lOGIN USER
+    // * 1. req body -> data 
+    // * 2. username and email 
+    // * 3. find the user 
+    // * 4. password check 
+    // * 5. access and refresh token
+    // * 6. send cookie 
 
     const {email, username, password} = req.body // get credenetials from req.body 
 
@@ -255,21 +256,21 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 const getCurrentUser = asyncHandler(async(req, res)=> {
     return res
      .status(200) 
-     .json(200, req.user, "current user fetched successfully")
+     .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
 })
 
 const updateAccountDetails = asyncHandler(async(req, res) => {
-    const {fullname, email} = req.body
+    const {fullName, email} = req.body
 
-    if (!fullname || !email) {
+    if (!fullName || !email) {
         throw new ApiError(400, "All fields are required")
     }
 
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
     {
         $set: {
-            fullname,
+            fullName,
             email: email
         }
     },
@@ -365,7 +366,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         {
             $lookup: {
                 from: "subscriptions",
-                localfield: "_id",
+                localField: "_id",
                 foreignField: "channel",
                 as: "subscribers"
             }
@@ -373,7 +374,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         {
             $lookup: {
                 from: "subscriptions",
-                localfield: "_id",
+                localField: "_id",
                 foreignField: "subscriber",
                 as: "subscribedTo"
             }
@@ -397,7 +398,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         },
         {
             $project: {
-                fullname: 1,
+                fullName: 1,
                 username: 1,
                 subscribersCount: 1,
                 channelsSubscribedToCount: 1,
@@ -452,7 +453,7 @@ const getWatchHistory = asyncHandler(async(req, res)=> {
 
                         }
                     },
-                    // * Enhanced array [Frontend experience]
+                    // * Enhanced array for better [Frontend experience]
                     {
                         $addFields: {
                             owner: {
