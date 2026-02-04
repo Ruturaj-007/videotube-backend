@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 
+
 const app = express()
 
 // Only allow requests coming from this specific frontend URL
@@ -24,9 +25,11 @@ app.use(cookieParser()) // VIP-Helps us to acess cookie in req and response
 
 // routes import
 import userRouter from './routes/user.routes.js'
+import videoRouter from "./routes/video.routes.js"
 
 // routers declaration
 app.use("/api/v1/users", userRouter) // user trying to visit till /users i dont handle that i pass on to userRouter
+app.use("/api/v1/videos", videoRouter)
 
 // user trying to visit http://localhost:8080/api/v1/users/register
 
